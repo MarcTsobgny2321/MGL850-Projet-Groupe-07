@@ -38,6 +38,7 @@ Le reçu de chaque document est dans `donnees/recus/`. Le PDF et son reçu serve
 | `npm run avancer -- <jours>` | Avancer l'horloge de la chaîne (retard, expiration) |
 | `npm run verifier -- <pdf> <reçu.json>` | Vérifier un document dans la console |
 | `npm run dossier -- etat <n°>` | Voir un dossier dans la console |
+| `npm run videos` | Enregistrer deux vidéos de démo dans `videos/` (chaîne et web lancés ; redéploie les contrats) |
 
 ## Tests
 

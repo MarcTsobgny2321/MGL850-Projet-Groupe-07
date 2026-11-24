@@ -13,7 +13,8 @@
     "verifier": "ts-node scripts/verifier.ts",
     "dossier": "ts-node scripts/dossier.ts",
     "web": "vite --config web/vite.config.ts",
-    "avancer": "ts-node scripts/avancer.ts"
+    "avancer": "ts-node scripts/avancer.ts",
+    "videos": "ts-node scripts/videos.ts"
   },
   "repository": {
     "type": "git",
@@ -44,6 +45,7 @@
     "chai": "^4.5.0",
     "ethers": "^6.17.0",
     "hardhat": "^2.29.1",
+    "playwright": "^1.65.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "ts-node": "^10.9.2",
