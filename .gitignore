@@ -1,4 +1,7 @@
-doc/
+# doc/ reste privé, sauf les ADR et l'architecture web
+doc/*
+!doc/adr/
+!doc/WEB.md
 node_modules/
 cache/
 artifacts/
