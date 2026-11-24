@@ -1,0 +1,24 @@
+/* L'icône n'apparaît qu'au survol ou au focus clavier, puis reste visible après une copie */
+.valeur {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 4px;
+  max-width: 100%;
+}
+
+.code {
+  word-break: break-all;
+  white-space: normal;
+}
+
+.copier {
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.valeur:hover .copier,
+.valeur:focus-within .copier,
+.copier[data-copie="oui"] {
+  opacity: 1;
+}

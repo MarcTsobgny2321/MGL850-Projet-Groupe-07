@@ -1,22 +1,34 @@
-// Hash, adresse ou signature : police à chasse fixe et bouton « Copier ».
-// Le bouton copie toujours la valeur complète, même si l'affichage est abrégé.
-import { Button, Code, CopyButton, Group } from "@mantine/core";
+// Hash, adresse ou signature en police à chasse fixe.
+// Une icône de copie apparaît au survol ; elle copie toujours la valeur complète,
+// même si l'affichage est abrégé.
+import { ActionIcon, Code, CopyButton, Tooltip } from "@mantine/core";
+import { IconCheck, IconCopy } from "@tabler/icons-react";
 import { abreger } from "../format";
+import classes from "./ValeurCopiable.module.css";
 
 export function ValeurCopiable({ valeur, court = false }: { valeur: string; court?: boolean }) {
-  const affichage = court ? abreger(valeur) : valeur;
   return (
-    <Group gap={6} wrap="nowrap" align="flex-start">
-      <Code title={valeur} style={{ wordBreak: "break-all", whiteSpace: "normal" }}>
-        {affichage}
+    <span className={classes.valeur}>
+      <Code className={classes.code} title={court ? valeur : undefined}>
+        {court ? abreger(valeur) : valeur}
       </Code>
       <CopyButton value={valeur} timeout={1500}>
         {({ copied, copy }) => (
-          <Button variant="subtle" size="compact-xs" color={copied ? "teal" : "gray"} onClick={copy} style={{ flexShrink: 0 }}>
-            {copied ? "Copié" : "Copier"}
-          </Button>
+          <Tooltip label={copied ? "Copié" : "Copier"} withArrow position="right">
+            <ActionIcon
+              className={classes.copier}
+              data-copie={copied ? "oui" : undefined}
+              variant="subtle"
+              color={copied ? "teal" : "gray"}
+              size="sm"
+              onClick={copy}
+              aria-label="Copier la valeur"
+            >
+              {copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
+            </ActionIcon>
+          </Tooltip>
         )}
       </CopyButton>
-    </Group>
+    </span>
   );
 }
