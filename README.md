@@ -19,6 +19,7 @@ npm install
 Relancer la chaîne efface tout : refaire l'étape 2 ensuite.
 
 Test manuel complet des transactions : [doc/E2E.md](doc/E2E.md).
+Prise en main par domaine : [doc/PRISE_EN_MAIN.md](doc/PRISE_EN_MAIN.md).
 
 ## Émettre et sceller des documents
 

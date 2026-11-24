@@ -3,6 +3,7 @@ doc/*
 !doc/adr/
 !doc/WEB.md
 !doc/E2E.md
+!doc/PRISE_EN_MAIN.md
 node_modules/
 cache/
 artifacts/
