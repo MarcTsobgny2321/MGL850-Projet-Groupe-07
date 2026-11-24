@@ -1,4 +1,5 @@
-// Bouton qui envoie une action sur la chaîne, puis affiche le résultat sous lui
+// Bouton qui envoie une action sur la chaîne.
+// Succès : notification (useTransaction). Refus : raison affichée sous le bouton.
 import { Button, ButtonProps, Stack } from "@mantine/core";
 import { useTransaction } from "../hooks/useTransaction";
 import { Resultat } from "./Resultat";
@@ -11,7 +12,7 @@ interface Props<T> extends Omit<ButtonProps, "onClick"> {
 }
 
 export function BoutonTransaction<T>({ libelle, action, enSucces, apres, ...bouton }: Props<T>) {
-  const { etat, message, detail, envoyer } = useTransaction();
+  const { etat, refus, envoyer } = useTransaction();
 
   async function cliquer() {
     await envoyer(action, enSucces);
@@ -23,9 +24,7 @@ export function BoutonTransaction<T>({ libelle, action, enSucces, apres, ...bout
       <Button {...bouton} loading={etat === "envoi"} onClick={cliquer}>
         {libelle}
       </Button>
-      {message && (etat === "confirmee" || etat === "refusee") && (
-        <Resultat ok={etat === "confirmee"} titre={message} detail={detail ?? undefined} />
-      )}
+      {refus && <Resultat ok={false} titre={refus.titre} detail={refus.detail} />}
     </Stack>
   );
 }

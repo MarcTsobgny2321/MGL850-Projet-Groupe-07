@@ -46,7 +46,7 @@ Code partagé avec les scripts, dans `scripts/` : `hachage.ts`, `formats.ts`, `l
 | Composant | Rôle |
 | --- | --- |
 | `ValeurCopiable` | Empreinte, adresse ou signature, icône de copie au survol (option `court` pour abréger) |
-| `BoutonTransaction` | Envoie une action et affiche le résultat ou la raison du refus |
+| `BoutonTransaction` | Envoie une action. Succès : notification en bas à droite (elle survit au rechargement de l'écran). Refus : raison affichée sous le bouton |
 | `Resultat`, `BadgeEtat` | Phrase de succès ou d'erreur, état d'un dossier |
 | `TableDocuments` | Documents attendus et leur situation |
 | `ChoixFichiers` | PDF et reçu, lus dans le navigateur |
