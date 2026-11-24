@@ -5,7 +5,7 @@
   "scripts": {
     "test": "hardhat test",
     "compile": "hardhat compile",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p web",
     "demo:lot": "ts-node scripts/demo-lot.ts",
     "chaine": "hardhat node",
     "deployer": "ts-node scripts/deployer.ts",
@@ -13,7 +13,8 @@
     "sceller": "ts-node scripts/sceller.ts",
     "verifier": "ts-node scripts/verifier.ts",
     "dossier": "ts-node scripts/dossier.ts",
-    "empreinte": "ts-node scripts/empreinte.ts"
+    "empreinte": "ts-node scripts/empreinte.ts",
+    "web": "vite --config web/vite.config.ts"
   },
   "repository": {
     "type": "git",
@@ -27,6 +28,8 @@
   },
   "homepage": "https://github.com/MarcTsobgny2321/MGL850-Projet-Groupe-07#readme",
   "devDependencies": {
+    "@mantine/core": "^9.8.2",
+    "@mantine/hooks": "^9.8.2",
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@openzeppelin/contracts": "^5.6.1",
     "@openzeppelin/merkle-tree": "^1.0.8",
@@ -35,9 +38,14 @@
     "@types/chai": "^4.3.20",
     "@types/mocha": "^10.0.10",
     "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
     "chai": "^4.5.0",
     "ethers": "^6.17.0",
     "hardhat": "^2.29.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "ts-node": "^10.9.2",
     "typechain": "^8.3.2",
     "typescript": "^5.9.3",
