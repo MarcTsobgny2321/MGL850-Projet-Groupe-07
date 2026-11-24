@@ -1,17 +1,17 @@
 // Vérifier un PDF et son reçu à une date. Lecture seule : aucun compte nécessaire.
 import { useState } from "react";
-import { Button, FileInput, Group, Paper, Stack, Text, TextInput, ThemeIcon, Timeline, Title } from "@mantine/core";
+import { Button, Group, Paper, Stack, Text, TextInput, ThemeIcon, Timeline, Title } from "@mantine/core";
 import { IconCheck, IconX } from "@tabler/icons-react";
 import { usePlateforme } from "../hooks/usePlateforme";
-import { Recu, Verification as ResultatVerification } from "../services/Plateforme";
+import { Verification as ResultatVerification } from "../services/Plateforme";
+import { ChoixFichiers, Fichiers, lireFichiers } from "../components/ChoixFichiers";
 import { Resultat } from "../components/Resultat";
 import { ValeurCopiable } from "../components/ValeurCopiable";
 import { dateLisible } from "../format";
 
 export function Verification() {
   const plateforme = usePlateforme();
-  const [pdf, setPdf] = useState<File | null>(null);
-  const [recu, setRecu] = useState<File | null>(null);
+  const [fichiers, setFichiers] = useState<Fichiers>({ pdf: null, recu: null });
   const [date, setDate] = useState("");
   const [cadastre, setCadastre] = useState("");
   const [enCours, setEnCours] = useState(false);
@@ -19,18 +19,15 @@ export function Verification() {
   const [erreur, setErreur] = useState<string | null>(null);
 
   async function verifier() {
-    if (!pdf || !recu) return;
     setEnCours(true);
     setErreur(null);
     setResultat(null);
     try {
-      // Le PDF est lu ici, dans le navigateur : il n'est envoyé nulle part
-      const octets = new Uint8Array(await pdf.arrayBuffer());
-      const contenuRecu = JSON.parse(await recu.text()) as Recu;
+      const { octets, recu } = await lireFichiers(fichiers);
       const quand = date ? Math.floor(new Date(date).getTime() / 1000) : undefined;
-      setResultat(await plateforme.verifier(octets, contenuRecu, quand, cadastre || undefined));
+      setResultat(await plateforme.verifier(octets, recu, quand, cadastre || undefined));
     } catch (e) {
-      setErreur(e instanceof SyntaxError ? "Le reçu n'est pas un fichier JSON lisible." : (e as Error).message);
+      setErreur((e as Error).message);
     } finally {
       setEnCours(false);
     }
@@ -48,16 +45,13 @@ export function Verification() {
 
       <Paper withBorder shadow="xs" p="lg">
         <Stack>
-          <Group grow align="flex-start">
-            <FileInput label="Document PDF" placeholder="Choisir le PDF" accept="application/pdf" value={pdf} onChange={setPdf} clearable />
-            <FileInput label="Reçu" description="Le fichier .json remis avec le PDF" placeholder="Choisir le reçu" accept="application/json" value={recu} onChange={setRecu} clearable />
-          </Group>
+          <ChoixFichiers valeur={fichiers} onChange={setFichiers} />
           <Group grow align="flex-start">
             <TextInput type="datetime-local" label="Date" description="Laisser vide pour vérifier maintenant" value={date} onChange={(e) => setDate(e.currentTarget.value)} />
             <TextInput label="Cadastre" description="Facultatif : confirme l'immeuble" placeholder="1234567" value={cadastre} onChange={(e) => setCadastre(e.currentTarget.value)} />
           </Group>
           <Group>
-            <Button onClick={verifier} loading={enCours} disabled={!pdf || !recu}>
+            <Button onClick={verifier} loading={enCours} disabled={!fichiers.pdf || !fichiers.recu}>
               Vérifier
             </Button>
           </Group>

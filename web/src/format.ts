@@ -9,3 +9,8 @@ export function dateLisible(secondes: number): string {
 export function abreger(valeur: string): string {
   return `${valeur.slice(0, 6)}…${valeur.slice(-4)}`;
 }
+
+// Nom lisible d'un type de document (TypeDocument dans scripts/lots.ts)
+export function libelleType(type: number): string {
+  return type === 1 ? "Rapport d'inspection" : type === 2 ? "Attestation du syndicat" : `Type ${type}`;
+}

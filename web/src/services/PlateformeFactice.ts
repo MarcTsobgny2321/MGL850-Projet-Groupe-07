@@ -1,7 +1,7 @@
 // Fausse plateforme : données fixes en mémoire, sans chaîne.
 // Sert à valider les écrans avant de brancher PlateformeChaine.
 import { empreinteOctets } from "../../../scripts/hachage";
-import { Statut, TypeDocument } from "../../../scripts/lots";
+import { Statut } from "../../../scripts/lots";
 import {
   ActionsDossier,
   Compte,
@@ -13,7 +13,7 @@ import {
   RefusContrat,
   Verification,
 } from "./Plateforme";
-import { dateLisible } from "../format";
+import { dateLisible, libelleType } from "../format";
 
 const JOUR = 24 * 3600;
 const maintenant = () => Math.floor(Date.now() / 1000);
@@ -99,7 +99,7 @@ export class PlateformeFactice implements Plateforme {
         { nom: "Recherche dans le lot 1", valeur: "Aucune feuille du lot n'a cette empreinte", ok: false });
     }
     etapes.push({ nom: "Lot en vigueur", valeur: `Lot 1, scellé le ${dateLisible(LOT_SCELLE)}. Racine identique à celle de la chaîne`, ok: true, technique: RACINE });
-    etapes.push({ nom: "Type", valeur: TypeDocument[recu.typeDocument] === "INSPECTION" ? "Rapport d'inspection" : "Attestation du syndicat", ok: true });
+    etapes.push({ nom: "Type", valeur: libelleType(recu.typeDocument), ok: true });
     const emetteur = [INSPECTEUR, SYNDICAT].find((e) => e.adresse === recu.emetteur)?.role ?? "inconnu";
     etapes.push({ nom: "Émetteur", valeur: `${emetteur}, reconnu à la date d'émission`, ok: true, technique: recu.emetteur });
     etapes.push({ nom: "Signature de l'émetteur", valeur: "Vérifiée", ok: true, technique: recu.signature });
@@ -115,11 +115,17 @@ export class PlateformeFactice implements Plateforme {
     return { valide: true, date: quand, etapes };
   }
 
+  // Toujours une copie : React ne réaffiche que si l'objet reçu est nouveau,
+  // comme ce sera le cas avec les données lues sur la chaîne
   async listerDossiers() {
-    return this.dossiers;
+    return structuredClone(this.dossiers);
   }
 
   async lireDossier(id: number) {
+    return structuredClone(this.trouver(id));
+  }
+
+  private trouver(id: number): Dossier {
     const d = this.dossiers.find((x) => x.id === id);
     if (!d) throw new Error(`Le dossier ${id} n'existe pas`);
     return d;
@@ -135,7 +141,8 @@ export class PlateformeFactice implements Plateforme {
       },
       approuver: async (id) => {
         await pause(700);
-        const d = await this.lireDossier(id);
+        const d = this.trouver(id);
+        if (d.etat !== "EnAttenteAccord") throw new RefusContrat("Mauvais etat du dossier");
         if (compte.role === "vendeur") d.accordVendeur = true;
         else if (compte.role === "acheteur") d.accordAcheteur = true;
         else throw new RefusContrat("Pas une partie du dossier");
@@ -143,16 +150,22 @@ export class PlateformeFactice implements Plateforme {
       },
       deposer: async (id, _pdf, recu) => {
         await pause(700);
-        const d = await this.lireDossier(id);
-        const doc = d.documents.find((x) => x.deposant.role === compte.role && !x.dateDepot);
-        if (!doc) throw new RefusContrat("Mauvais deposant");
-        if (recu.immeuble !== d.immeuble) throw new RefusContrat("Mauvais immeuble");
+        const d = this.trouver(id);
+        if (d.etat !== "Actif") throw new RefusContrat("Mauvais etat du dossier");
+        // Le document attendu est retrouvé par son type, comme dans scripts/dossier.ts
+        const doc = d.documents.find((x) => x.type === libelleType(recu.typeDocument));
+        if (!doc) throw new RefusContrat("Document non attendu");
+        if (doc.deposant.role !== compte.role) throw new RefusContrat("Mauvais deposant");
+        if (doc.dateDepot) throw new RefusContrat("Deja depose");
+        // Simplification : l'immeuble n'est pas comparé ici (le reçu vient d'une autre chaîne)
         doc.dateDepot = maintenant();
-        d.conformeSiFermeMaintenant = d.documents.every((x) => x.dateDepot);
+        doc.enRetard = doc.dateDepot >= doc.dateLimite;
+        d.conformeSiFermeMaintenant = d.documents.every((x) => x.dateDepot && !x.enRetard && !x.expire);
       },
       fermer: async (id) => {
         await pause(700);
-        const d = await this.lireDossier(id);
+        const d = this.trouver(id);
+        if (d.etat !== "Actif") throw new RefusContrat("Mauvais etat du dossier");
         if (compte.role !== "notaire") throw new RefusContrat("Seul le notaire ferme");
         d.etat = d.conformeSiFermeMaintenant ? "Ferme" : "FermeNonConforme";
         return d.etat;
