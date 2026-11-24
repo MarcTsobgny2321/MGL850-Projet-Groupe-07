@@ -1,9 +1,9 @@
 // État de la connexion : contrats, lots, dossiers
 import { useEffect, useState } from "react";
-import { Paper, SimpleGrid, Stack, Text, Title } from "@mantine/core";
+import { Group, Paper, SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import { usePlateforme } from "../hooks/usePlateforme";
 import { Infos } from "../services/Plateforme";
-import { adresseCourte } from "../format";
+import { ValeurCopiable } from "../components/ValeurCopiable";
 
 function Chiffre({ titre, valeur }: { titre: string; valeur: string | number }) {
   return (
@@ -39,9 +39,13 @@ export function Accueil() {
             <Chiffre titre="Lots scellés" valeur={infos.nbLots} />
             <Chiffre titre="Dossiers de vente" valeur={infos.nbDossiers} />
           </SimpleGrid>
-          <Text fz="sm" c="dimmed">
-            ProofAnchor {adresseCourte(infos.proofAnchor)}, TransactionWorkflow {adresseCourte(infos.transactionWorkflow)}
-          </Text>
+          <Paper withBorder p="md">
+            <Stack gap="xs">
+              <Text fz="sm" c="dimmed">Adresses des contrats</Text>
+              <Group gap="sm"><Text w={170}>ProofAnchor</Text><ValeurCopiable valeur={infos.proofAnchor} /></Group>
+              <Group gap="sm"><Text w={170}>TransactionWorkflow</Text><ValeurCopiable valeur={infos.transactionWorkflow} /></Group>
+            </Stack>
+          </Paper>
         </>
       )}
     </Stack>

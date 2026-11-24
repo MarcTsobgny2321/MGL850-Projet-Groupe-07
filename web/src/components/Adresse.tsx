@@ -1,15 +1,13 @@
-// Rôle suivi de l'adresse abrégée : « acheteur 0x14dC…9955 »
-import { Text } from "@mantine/core";
+// Rôle suivi de l'adresse abrégée et copiable : « acheteur 0x14dC…9955 »
+import { Group, Text } from "@mantine/core";
 import { Compte } from "../services/Plateforme";
-import { adresseCourte } from "../format";
+import { ValeurCopiable } from "./ValeurCopiable";
 
 export function Adresse({ compte }: { compte: Compte }) {
   return (
-    <span>
-      {compte.role}{" "}
-      <Text span ff="monospace" fz="xs" c="dimmed" title={compte.adresse}>
-        {adresseCourte(compte.adresse)}
-      </Text>
-    </span>
+    <Group gap={6} wrap="nowrap">
+      <Text span>{compte.role}</Text>
+      <ValeurCopiable valeur={compte.adresse} court />
+    </Group>
   );
 }

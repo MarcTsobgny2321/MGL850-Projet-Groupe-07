@@ -40,6 +40,7 @@ export interface Etape {
   nom: string;
   valeur: string;
   ok: boolean;
+  technique?: string; // hash, adresse ou signature, affiché en bloc copiable
 }
 
 export interface Verification {

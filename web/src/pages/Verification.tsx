@@ -4,6 +4,7 @@ import { Button, FileInput, Group, Paper, Stack, Text, TextInput, Timeline, Titl
 import { usePlateforme } from "../hooks/usePlateforme";
 import { Recu, Verification as ResultatVerification } from "../services/Plateforme";
 import { Resultat } from "../components/Resultat";
+import { ValeurCopiable } from "../components/ValeurCopiable";
 import { dateLisible } from "../format";
 
 export function Verification() {
@@ -75,7 +76,10 @@ export function Verification() {
             <Timeline bulletSize={12} lineWidth={1} active={resultat.etapes.length}>
               {resultat.etapes.map((e) => (
                 <Timeline.Item key={e.nom} title={e.nom} color={e.ok ? "encre" : "red"}>
-                  <Text fz="sm" c="dimmed">{e.valeur}</Text>
+                  <Stack gap={4}>
+                    <Text fz="sm" c="dimmed">{e.valeur}</Text>
+                    {e.technique && <ValeurCopiable valeur={e.technique} />}
+                  </Stack>
                 </Timeline.Item>
               ))}
             </Timeline>

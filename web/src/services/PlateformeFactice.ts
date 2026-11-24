@@ -13,7 +13,7 @@ import {
   RefusContrat,
   Verification,
 } from "./Plateforme";
-import { dateLisible, empreinteCourte } from "../format";
+import { dateLisible } from "../format";
 
 const JOUR = 24 * 3600;
 const maintenant = () => Math.floor(Date.now() / 1000);
@@ -31,6 +31,7 @@ const SYNDICAT = { role: "syndicat", adresse: "0x90F79bf6EB2c4f870365E785982E1f1
 const [COURTIER, VENDEUR, ACHETEUR, NOTAIRE] = COMPTES;
 
 const LOT_SCELLE = maintenant() - JOUR; // le lot 1 a été scellé hier
+const RACINE = "0x13b0c6552a91e214ff172a6fb867d518edcb7cba76d41aed1bf6c0e3cdf87f8e";
 
 function nouveauDossier(id: number, etat: Dossier["etat"], deposes: number): Dossier {
   const limite = maintenant() + 9 * JOUR;
@@ -82,7 +83,9 @@ export class PlateformeFactice implements Plateforme {
     await pause(500);
     const quand = date ?? maintenant();
     const emp = empreinteOctets(recu.sel, pdf);
-    const etapes: Etape[] = [{ nom: "Empreinte recalculée", valeur: empreinteCourte(emp), ok: true }];
+    const etapes: Etape[] = [
+      { nom: "Empreinte recalculée", valeur: "Calculée à partir du PDF et du sel du reçu", ok: true, technique: emp },
+    ];
     const echec = (raison: string, etape: Etape): Verification => ({
       valide: false, date: quand, raison, etapes: [...etapes, etape],
     });
@@ -93,10 +96,13 @@ export class PlateformeFactice implements Plateforme {
     }
     if (emp !== recu.empreinte) {
       return echec("Ce PDF ne correspond à aucun document scellé. Il a peut-être été modifié.",
-        { nom: "Recherche dans le lot 1", valeur: "absent", ok: false });
+        { nom: "Recherche dans le lot 1", valeur: "Aucune feuille du lot n'a cette empreinte", ok: false });
     }
-    etapes.push({ nom: "Lot en vigueur", valeur: `Lot 1, scellé le ${dateLisible(LOT_SCELLE)}`, ok: true });
+    etapes.push({ nom: "Lot en vigueur", valeur: `Lot 1, scellé le ${dateLisible(LOT_SCELLE)}. Racine identique à celle de la chaîne`, ok: true, technique: RACINE });
     etapes.push({ nom: "Type", valeur: TypeDocument[recu.typeDocument] === "INSPECTION" ? "Rapport d'inspection" : "Attestation du syndicat", ok: true });
+    const emetteur = [INSPECTEUR, SYNDICAT].find((e) => e.adresse === recu.emetteur)?.role ?? "inconnu";
+    etapes.push({ nom: "Émetteur", valeur: `${emetteur}, reconnu à la date d'émission`, ok: true, technique: recu.emetteur });
+    etapes.push({ nom: "Signature de l'émetteur", valeur: "Vérifiée", ok: true, technique: recu.signature });
     const statut = recu.statut === Statut.VALIDE ? "Valide" : "Annulé";
     etapes.push({ nom: "Statut", valeur: `${statut} depuis le ${dateLisible(recu.dateStatut)}`, ok: true });
 
