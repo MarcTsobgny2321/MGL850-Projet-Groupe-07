@@ -8,9 +8,14 @@ import { App } from "./App";
 import { FournisseurPlateforme } from "./hooks/usePlateforme";
 import { FournisseurCompte } from "./hooks/useCompte";
 import { PlateformeFactice } from "./services/PlateformeFactice";
+import { PlateformeChaine } from "./services/PlateformeChaine";
+import { Plateforme } from "./services/Plateforme";
 
-// Pour l'instant : fausse plateforme (maquettes). PlateformeChaine la remplacera.
-const plateforme = new PlateformeFactice();
+// Seul endroit qui choisit l'implémentation : la vraie chaîne par défaut,
+// des données fixes avec ?factice dans l'adresse (démo sans chaîne)
+const plateforme: Plateforme = new URLSearchParams(location.search).has("factice")
+  ? new PlateformeFactice()
+  : new PlateformeChaine();
 
 createRoot(document.getElementById("racine")!).render(
   <StrictMode>

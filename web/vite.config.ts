@@ -4,8 +4,10 @@ import { defineConfig, Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import fs from "fs";
 import path from "path";
+import { immeubleOuCreer, lireImmeuble } from "../scripts/immeubles";
 
 const DONNEES = path.resolve(__dirname, "../donnees");
+const IMMEUBLES = path.join(DONNEES, "immeubles");
 
 // Seuls les fichiers publics sont servis : jamais recus/, registres/ ni immeubles/
 const PUBLICS = /^\/donnees\/(deploiement\.json|lots\/lot-\d+\.json)$/;
@@ -29,9 +31,32 @@ function fichiersPublics(): Plugin {
   };
 }
 
+// Simule le logiciel privé du courtier (ADR 0001) : seule exception aux fichiers publics.
+// GET lit sans jamais créer ; POST crée le sel à l'ouverture d'un dossier.
+function registreImmeubles(): Plugin {
+  return {
+    name: "registre-immeubles",
+    configureServer(serveur) {
+      serveur.middlewares.use((req, res, next) => {
+        const m = /^\/api\/immeuble\/([^/?]+)$/.exec(req.url ?? "");
+        if (!m) return next();
+        res.setHeader("Content-Type", "application/json");
+        try {
+          const immeuble = req.method === "POST" ? immeubleOuCreer(IMMEUBLES, m[1]) : lireImmeuble(IMMEUBLES, m[1]);
+          if (!immeuble) res.statusCode = 404;
+          res.end(JSON.stringify(immeuble));
+        } catch (e) {
+          res.statusCode = 400;
+          res.end(JSON.stringify({ erreur: (e as Error).message }));
+        }
+      });
+    },
+  };
+}
+
 export default defineConfig({
   root: __dirname,
-  plugins: [react(), fichiersPublics()],
+  plugins: [react(), fichiersPublics(), registreImmeubles()],
   server: {
     port: 5173,
     // Relais vers la chaîne locale : le navigateur reste sur la même origine (pas de CORS)

@@ -3,7 +3,10 @@
 // Utilisé par verifier.ts (notaire) et dossier.ts (dépôt).
 import { ProofAnchor } from "../typechain-types";
 import { construireLot } from "./lots";
-import { DocumentSigne, FichierLot, fichierLot, lireJson } from "./stockage";
+import { DocumentSigne, FichierLot } from "./formats";
+
+// Lecture du fichier public d'un lot : fichier local (Node) ou fetch (navigateur)
+export type LireLot = (numeroLot: number) => Promise<FichierLot | null>;
 
 // Le lot en vigueur : le plus récent scellé avant (ou à) la date (D3).
 // Lu sur la chaîne, pas dans les fichiers, qui pourraient être faux.
@@ -23,11 +26,12 @@ export async function preuveDuDocument(
   ancre: ProofAnchor,
   empreinte: string,
   date: number,
+  lireLot: LireLot,
 ): Promise<Recherche> {
   const numeroLot = await lotEnVigueur(ancre, date);
   if (numeroLot === 0) return { trouve: false, raison: "aucun lot scellé à cette date" };
 
-  const lot = lireJson<FichierLot | null>(fichierLot(numeroLot), null);
+  const lot = await lireLot(numeroLot);
   if (!lot) return { trouve: false, raison: `fichier du lot ${numeroLot} introuvable` };
 
   // Le fichier doit correspondre à la racine scellée, sinon il a été modifié

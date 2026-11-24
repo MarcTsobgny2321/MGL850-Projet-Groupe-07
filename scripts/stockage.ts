@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import { DOSSIER_DONNEES } from "./comptes";
 import { FichierLot, Immeuble } from "./formats";
-import { empreinteImmeuble, nouveauSel } from "./hachage";
+import { immeubleOuCreer } from "./immeubles";
 
 // Les formats sont dans formats.ts (sans fs, utilisables par le web)
 export type { DocumentSigne, FichierLot, Immeuble, Recu } from "./formats";
@@ -14,20 +14,18 @@ export const DOSSIER_REGISTRES = path.join(DOSSIER_DONNEES, "registres");
 export const DOSSIER_LOTS = path.join(DOSSIER_DONNEES, "lots");
 export const DOSSIER_IMMEUBLES = path.join(DOSSIER_DONNEES, "immeubles");
 
-// Dans le prototype, ce fichier remplace l'échange entre le courtier et l'émetteur.
-// Créé au premier usage, puis toujours relu : le même immeuble garde le même sel.
+// Dans le prototype, ce fichier remplace l'échange entre le courtier et l'émetteur (immeubles.ts)
 export function immeubleDe(cadastre: string): Immeuble {
-  const fichier = path.join(DOSSIER_IMMEUBLES, `${cadastre}.json`);
-  const existant = lireJson<Immeuble | null>(fichier, null);
-  if (existant) return existant;
-  const sel = nouveauSel();
-  const nouveau = { cadastre, sel, immeuble: empreinteImmeuble(cadastre, sel) };
-  ecrireJson(fichier, nouveau);
-  return nouveau;
+  return immeubleOuCreer(DOSSIER_IMMEUBLES, cadastre);
 }
 
 export function fichierLot(numeroLot: number) {
   return path.join(DOSSIER_LOTS, `lot-${numeroLot}.json`);
+}
+
+// Lecture d'un lot depuis le disque, pour preuveDuDocument (preuve.ts)
+export async function lireLotLocal(numeroLot: number): Promise<FichierLot | null> {
+  return lireJson<FichierLot | null>(fichierLot(numeroLot), null);
 }
 
 export function lireJson<T>(fichier: string, defaut: T): T {

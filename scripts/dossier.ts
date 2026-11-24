@@ -17,10 +17,10 @@ import {
 import { empreinte } from "./empreinte";
 import { TypeDocument } from "./lots";
 import { preuveDuDocument } from "./preuve";
-import { immeubleDe, lireJson, Recu } from "./stockage";
+import { immeubleDe, lireJson, lireLotLocal, Recu } from "./stockage";
+import { ETATS, numeroAttendu } from "./workflow";
 
 const JOUR = 24 * 3600;
-const ETATS = ["Aucun", "EnAttenteAccord", "Actif", "Ferme", "FermeNonConforme"];
 
 const dateLisible = (s: number) =>
   new Date(s * 1000).toLocaleString("fr-CA", { dateStyle: "short", timeStyle: "short" });
@@ -68,13 +68,13 @@ async function deposer(id: number, fichierPdf: string, fichierRecu: string) {
   if (!recu) throw new Error(`Reçu introuvable : ${fichierRecu}`);
 
   const ancre = await proofAnchor("notaire"); // simple lecture ici
-  const r = await preuveDuDocument(ancre, empreinte(fichierPdf, recu.sel), await maintenantChaine());
+  const r = await preuveDuDocument(ancre, empreinte(fichierPdf, recu.sel), await maintenantChaine(), lireLotLocal);
   if (!r.trouve) throw new Error(`Dépôt impossible : ${r.raison}`);
 
   // Le n° du document attendu, d'après le type signé dans la feuille
   const lecture = await transactionWorkflow("notaire");
   const attendus = await lecture.documentsAttendus(id);
-  const numero = attendus.findIndex((a) => Number(a.typeDocument) === r.doc.typeDocument);
+  const numero = numeroAttendu(attendus, r.doc.typeDocument);
   if (numero < 0) throw new Error(`Ce dossier n'attend pas de document ${TypeDocument[r.doc.typeDocument]}`);
   const role = await roleDe(attendus[numero].deposant);
   if (!role) throw new Error("Déposant inconnu");

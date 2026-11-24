@@ -7,19 +7,10 @@ import { ProofAnchor__factory, TransactionWorkflow__factory } from "../typechain
 export const URL_CHAINE = "http://127.0.0.1:8545";
 export const fournisseur = new ethers.JsonRpcProvider(URL_CHAINE);
 
-export const INDICES = {
-  admin: 0,
-  scelleur: 1,
-  inspecteur: 2,
-  syndicat: 3,
-  fraudeur: 4,
-  courtier: 5,
-  vendeur: 6,
-  acheteur: 7,
-  notaire: 8,
-} as const;
+import { INDICES, Role } from "./roles";
 
-export type Role = keyof typeof INDICES;
+export { INDICES };
+export type { Role };
 
 export function compte(role: Role) {
   return fournisseur.getSigner(INDICES[role]);

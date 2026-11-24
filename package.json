@@ -14,7 +14,8 @@
     "verifier": "ts-node scripts/verifier.ts",
     "dossier": "ts-node scripts/dossier.ts",
     "empreinte": "ts-node scripts/empreinte.ts",
-    "web": "vite --config web/vite.config.ts"
+    "web": "vite --config web/vite.config.ts",
+    "avancer": "ts-node scripts/avancer.ts"
   },
   "repository": {
     "type": "git",

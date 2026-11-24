@@ -8,7 +8,7 @@ import { ProofAnchor__factory } from "../typechain-types";
 import { empreinte } from "./empreinte";
 import { Statut, TypeDocument } from "./lots";
 import { preuveDuDocument } from "./preuve";
-import { DOSSIER_IMMEUBLES, Immeuble, Recu, lireJson } from "./stockage";
+import { DOSSIER_IMMEUBLES, Immeuble, Recu, lireJson, lireLotLocal } from "./stockage";
 
 // Lecture seule : aucun compte n'est nécessaire, donc aucun gaz
 function contratEnLecture() {
@@ -46,7 +46,7 @@ async function main() {
   console.log(`Date       : ${dateLisible(date)}`);
 
   // 2 à 4. Lot en vigueur lu sur la chaîne, fichier comparé à la racine, feuille du lot (preuve.ts)
-  const r = await preuveDuDocument(ancre, emp, date);
+  const r = await preuveDuDocument(ancre, emp, date, lireLotLocal);
   if (!r.trouve) return conclure(false, r.raison);
   const { numeroLot, lot, doc, preuve } = r;
   console.log(`Lot        : ${numeroLot}, scellé le ${dateLisible(lot.dateScellement)}`);
