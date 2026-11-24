@@ -7,15 +7,11 @@ import { theme } from "./theme/index";
 import { App } from "./App";
 import { FournisseurPlateforme } from "./hooks/usePlateforme";
 import { FournisseurCompte } from "./hooks/useCompte";
-import { PlateformeFactice } from "./services/PlateformeFactice";
 import { PlateformeChaine } from "./services/PlateformeChaine";
 import { Plateforme } from "./services/Plateforme";
 
-// Seul endroit qui choisit l'implémentation : la vraie chaîne par défaut,
-// des données fixes avec ?factice dans l'adresse (démo sans chaîne)
-const plateforme: Plateforme = new URLSearchParams(location.search).has("factice")
-  ? new PlateformeFactice()
-  : new PlateformeChaine();
+// Seul endroit qui choisit l'implémentation de l'interface (ADR 0003)
+const plateforme: Plateforme = new PlateformeChaine();
 
 createRoot(document.getElementById("racine")!).render(
   <StrictMode>

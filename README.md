@@ -18,7 +18,7 @@ npm install
 
 Relancer la chaîne efface tout : refaire l'étape 2 ensuite.
 
-Sans chaîne, avec des données fixes : http://localhost:5173/?factice
+Test manuel complet des transactions : [doc/E2E.md](doc/E2E.md).
 
 ## Émettre et sceller des documents
 

@@ -1,6 +1,6 @@
 # 0003. Une interface entre le front et la chaîne
 
-Statut : Accepté
+Statut : Accepté, complété par 0005
 Date : 2026-11-24
 
 ## Contexte

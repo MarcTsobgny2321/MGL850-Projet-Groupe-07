@@ -8,8 +8,9 @@ Les décisions sur le protocole lui-même (D1 à D14 : sel, lot en vigueur, sign
 | --- | --- | --- |
 | [0001](0001-dapp-sans-backend.md) | Une DApp sans backend : les contrats tiennent lieu d'API | Accepté |
 | [0002](0002-front-react-mantine.md) | Front en React, Vite et Mantine | Accepté |
-| [0003](0003-interface-plateforme.md) | Une interface entre le front et la chaîne | Accepté |
+| [0003](0003-interface-plateforme.md) | Une interface entre le front et la chaîne | Accepté, complété par 0005 |
 | [0004](0004-comptes-et-deploiement-local.md) | Comptes de test et déploiement local | Accepté |
+| [0005](0005-retrait-fausse-plateforme.md) | Retrait de la fausse plateforme | Accepté |
 
 ## Gabarit
 

@@ -82,6 +82,7 @@ function Ouverture({ apres }: { apres: () => void }) {
           <TextInput
             label="Cadastre de l'immeuble"
             description="Seule son empreinte salée ira sur la chaîne"
+            placeholder="Ex. 1234567"
             value={cadastre}
             onChange={(e) => setCadastre(e.currentTarget.value)}
           />
