@@ -1,6 +1,7 @@
 // Vérifier un PDF et son reçu à une date. Lecture seule : aucun compte nécessaire.
 import { useState } from "react";
-import { Button, FileInput, Group, Paper, Stack, Text, TextInput, Timeline, Title } from "@mantine/core";
+import { Button, FileInput, Group, Paper, Stack, Text, TextInput, ThemeIcon, Timeline, Title } from "@mantine/core";
+import { IconCheck, IconX } from "@tabler/icons-react";
 import { usePlateforme } from "../hooks/usePlateforme";
 import { Recu, Verification as ResultatVerification } from "../services/Plateforme";
 import { Resultat } from "../components/Resultat";
@@ -39,13 +40,13 @@ export function Verification() {
     <Stack gap="lg">
       <div>
         <Title order={2}>Vérifier un document</Title>
-        <Text c="dimmed">
+        <Text c="neutre.7">
           Le PDF reste sur votre ordinateur : seule son empreinte est calculée. La vérification ne coûte rien et ne
           demande aucun compte.
         </Text>
       </div>
 
-      <Paper withBorder p="lg">
+      <Paper withBorder shadow="xs" p="lg">
         <Stack>
           <Group grow align="flex-start">
             <FileInput label="Document PDF" placeholder="Choisir le PDF" accept="application/pdf" value={pdf} onChange={setPdf} clearable />
@@ -63,21 +64,29 @@ export function Verification() {
         </Stack>
       </Paper>
 
-      {erreur && <Text c="red.8">{erreur}</Text>}
+      {erreur && <Text c="erreur.7">{erreur}</Text>}
 
       {resultat && (
-        <Paper withBorder p="lg">
+        <Paper withBorder shadow="xs" p="lg">
           <Stack gap="lg">
             <Resultat
               ok={resultat.valide}
               titre={resultat.valide ? `Valide le ${dateLisible(resultat.date)}` : `Non valide le ${dateLisible(resultat.date)}`}
               detail={resultat.valide ? "Le document est intact, scellé et valide à cette date." : resultat.raison}
             />
-            <Timeline bulletSize={12} lineWidth={1} active={resultat.etapes.length}>
+            <Timeline bulletSize={22} lineWidth={2} active={resultat.etapes.length} color="succes">
               {resultat.etapes.map((e) => (
-                <Timeline.Item key={e.nom} title={e.nom} color={e.ok ? "encre" : "red"}>
+                <Timeline.Item
+                  key={e.nom}
+                  title={e.nom}
+                  bullet={
+                    <ThemeIcon size={22} radius="xl" color={e.ok ? "succes" : "erreur"}>
+                      {e.ok ? <IconCheck size={13} /> : <IconX size={13} />}
+                    </ThemeIcon>
+                  }
+                >
                   <Stack gap={4}>
-                    <Text fz="sm" c="dimmed">{e.valeur}</Text>
+                    <Text fz="sm" c="neutre.7">{e.valeur}</Text>
                     {e.technique && <ValeurCopiable valeur={e.technique} />}
                   </Stack>
                 </Timeline.Item>

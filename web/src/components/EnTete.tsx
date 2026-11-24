@@ -27,17 +27,19 @@ export function EnTete({ page, allerA }: { page: Page; allerA: (p: Page) => void
   }, [plateforme]);
 
   return (
-    <Group justify="space-between" h="100%" px="lg">
+    <Group justify="space-between" h="100%" px="lg" bg="primaire.7">
       <Group gap="xl">
-        <Text fw={600}>Preuves immobilières</Text>
+        <Text fw={700} c="white">Preuves immobilières</Text>
         <Group gap="lg">
           {PAGES.map((p) => (
             <Anchor
               key={p.id}
               component="button"
               onClick={() => allerA(p.id)}
-              c={p.id === page ? "dark" : "dimmed"}
+              c={p.id === page ? "white" : "primaire.1"}
               fw={p.id === page ? 600 : 400}
+              td={p.id === page ? "underline" : undefined}
+              style={{ textUnderlineOffset: 6 }}
               underline="never"
             >
               {p.titre}
@@ -46,7 +48,7 @@ export function EnTete({ page, allerA }: { page: Page; allerA: (p: Page) => void
         </Group>
       </Group>
       <Group gap="md">
-        <Text fz="xs" c="dimmed">
+        <Text fz="xs" c="primaire.1">
           {heure ? `Heure de la chaîne : ${dateLisible(heure)}` : "Chaîne injoignable"}
         </Text>
         <Select

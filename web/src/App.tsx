@@ -9,7 +9,7 @@ export function App() {
   const [page, setPage] = useState<Page>("verification");
 
   return (
-    <AppShell header={{ height: 64 }} padding="xl">
+    <AppShell header={{ height: 64 }} padding="xl" bg="primaire.0">
       <AppShell.Header>
         <EnTete page={page} allerA={setPage} />
       </AppShell.Header>
@@ -17,7 +17,7 @@ export function App() {
         <Container size="md">
           {page === "accueil" && <Accueil />}
           {page === "verification" && <Verification />}
-          {page === "dossiers" && <Text c="dimmed">Écran des dossiers : à venir.</Text>}
+          {page === "dossiers" && <Text c="neutre.7">Écran des dossiers : à venir.</Text>}
         </Container>
       </AppShell.Main>
     </AppShell>
