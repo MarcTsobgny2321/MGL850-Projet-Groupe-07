@@ -10,6 +10,7 @@ import { INDICES, Role } from "../../../scripts/roles";
 import { ETATS, numeroAttendu } from "../../../scripts/workflow";
 import {
   ActionsDossier,
+  Bloc,
   Compte,
   Dossier,
   EtatDossier,
@@ -18,9 +19,10 @@ import {
   Plateforme,
   Recu,
   RefusContrat,
+  TransactionChaine,
   Verification,
 } from "./Plateforme";
-import { dateLisible, libelleType } from "../format";
+import { abreger, dateLisible, libelleType } from "../format";
 
 const JOUR = 24 * 3600;
 const ROLES_USAGERS: Role[] = ["courtier", "vendeur", "acheteur", "notaire"];
@@ -44,6 +46,23 @@ function traduire(e: unknown): Error {
   const raison = (e as { reason?: string }).reason;
   if (raison) return new RefusContrat(raison);
   return e instanceof Error ? e : new Error(String(e));
+}
+
+// Valeur d'un paramètre en texte lisible ; les tableaux et les structs sont parcourus récursivement
+function texteValeur(p: ethers.ParamType, v: unknown, roles: Map<string, Role>): string {
+  if (p.isArray()) return `[${(v as unknown[]).map((x) => texteValeur(p.arrayChildren, x, roles)).join(", ")}]`;
+  if (p.isTuple()) return `{ ${p.components.map((c, i) => `${c.name}: ${texteValeur(c, (v as unknown[])[i], roles)}`).join(", ")} }`;
+  if (p.type === "address") return roles.get(String(v).toLowerCase()) ?? abreger(String(v));
+  if (p.name.startsWith("date")) return Number(v) === 0 ? "aucune" : dateLisible(Number(v));
+  if (p.name === "etat") return ETATS[Number(v)];
+  if (p.name === "typeDocument") return libelleType(Number(v));
+  if (typeof v === "string" && v.length > 12) return abreger(v);
+  return String(v);
+}
+
+// « LotScelle(numeroLot: 2, racine: 0x1a2b…9f0e, dateScellement: 24 novembre 2026 à 10 h 00) »
+function texteAppel(nom: string, entrees: readonly ethers.ParamType[], args: ethers.Result, roles: Map<string, Role>): string {
+  return `${nom}(${entrees.map((p, i) => `${p.name}: ${texteValeur(p, args[i], roles)}`).join(", ")})`;
 }
 
 export class PlateformeChaine implements Plateforme {
@@ -102,6 +121,79 @@ export class PlateformeChaine implements Plateforme {
       nbDossiers: Number(await flux.dernierDossier()),
       heureChaine: await this.heureChaine(),
     };
+  }
+
+  // Explorateur : lit les blocs un par un, comme le ferait Etherscan, et décode les
+  // appels et les événements avec l'ABI de nos deux contrats.
+  async derniersBlocs(nombre: number): Promise<Bloc[]> {
+    const dernier = await this.fournisseur.getBlockNumber();
+    const numeros: number[] = [];
+    for (let n = dernier; n >= 0 && numeros.length < nombre; n--) numeros.push(n);
+
+    // Sans déploiement, on affiche quand même les blocs, mais sans noms de contrats
+    const dep = await lireJsonPublic<{ proofAnchor: string; transactionWorkflow: string }>("/donnees/deploiement.json");
+    const connus = new Map<string, { nom: string; abi: ethers.Interface }>();
+    if (dep) {
+      connus.set(dep.proofAnchor.toLowerCase(), { nom: "ProofAnchor", abi: ProofAnchor__factory.createInterface() });
+      connus.set(dep.transactionWorkflow.toLowerCase(), { nom: "TransactionWorkflow", abi: TransactionWorkflow__factory.createInterface() });
+    }
+    const roles = await this.roles();
+
+    const lireTransaction = async (tx: ethers.TransactionResponse): Promise<TransactionChaine> => {
+      const recu = (await this.fournisseur.getTransactionReceipt(tx.hash))!;
+      // to est vide pour un déploiement : l'adresse du nouveau contrat est dans le reçu
+      const cible = connus.get((tx.to ?? recu.contractAddress ?? "").toLowerCase());
+      let fonction = tx.data === "0x" ? "transfert d'ether" : "inconnue";
+      let appel: string | undefined;
+      if (!tx.to) fonction = "déploiement";
+      else if (cible) {
+        const d = cible.abi.parseTransaction({ data: tx.data, value: tx.value });
+        if (d) {
+          fonction = d.name;
+          appel = texteAppel(d.name, d.fragment.inputs, d.args, roles);
+        }
+      }
+
+      const evenements = recu.logs.map((log) => {
+        const e = connus.get(log.address.toLowerCase())?.abi.parseLog(log);
+        return e ? texteAppel(e.name, e.fragment.inputs, e.args, roles) : "événement inconnu";
+      });
+
+      return {
+        hash: tx.hash,
+        de: await this.compte(tx.from),
+        vers: cible?.nom ?? tx.to ?? recu.contractAddress ?? "?",
+        fonction,
+        evenements,
+        gaz: Number(recu.gasUsed),
+        reussie: recu.status === 1,
+        appel,
+        adresseVers: tx.to ?? undefined,
+        contratCree: recu.contractAddress ?? undefined,
+        position: tx.index,
+        nonce: tx.nonce,
+        gazLimite: Number(tx.gasLimit),
+        prixGaz: `${ethers.formatUnits(recu.gasPrice, "gwei")} gwei`,
+        cout: `${ethers.formatEther(recu.fee)} ETH`,
+        valeur: `${ethers.formatEther(tx.value)} ETH`,
+        donnees: tx.data,
+        signature: tx.signature.serialized,
+      };
+    };
+
+    return Promise.all(
+      numeros.map(async (n) => {
+        // true : le bloc arrive avec ses transactions complètes, pas seulement leurs hash
+        const b = (await this.fournisseur.getBlock(n, true))!;
+        return {
+          numero: n,
+          date: b.timestamp,
+          hash: b.hash!,
+          hashPrecedent: b.parentHash,
+          transactions: await Promise.all(b.prefetchedTransactions.map(lireTransaction)),
+        };
+      }),
+    );
   }
 
   async comptes(): Promise<Compte[]> {
