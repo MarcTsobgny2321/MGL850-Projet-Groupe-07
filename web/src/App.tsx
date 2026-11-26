@@ -6,6 +6,7 @@ import { Accueil } from "./pages/Accueil";
 import { Verification } from "./pages/Verification";
 import { Dossiers } from "./pages/Dossiers";
 import { DossierDetail } from "./pages/DossierDetail";
+import { Chaine } from "./pages/Chaine";
 
 export function App() {
   const [page, setPage] = useState<Page>("accueil");
@@ -29,6 +30,7 @@ export function App() {
           {page === "dossiers" && dossier !== null && (
             <DossierDetail id={dossier} retour={() => setDossier(null)} verifier={() => allerA("verification")} />
           )}
+          {page === "chaine" && <Chaine />}
         </Container>
       </AppShell.Main>
     </AppShell>

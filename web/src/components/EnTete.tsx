@@ -5,12 +5,13 @@ import { useCompte } from "../hooks/useCompte";
 import { usePlateforme } from "../hooks/usePlateforme";
 import { dateLisible } from "../format";
 
-export type Page = "accueil" | "verification" | "dossiers";
+export type Page = "accueil" | "verification" | "dossiers" | "chaine";
 
 const PAGES: { id: Page; titre: string }[] = [
   { id: "accueil", titre: "Accueil" },
   { id: "verification", titre: "Vérification" },
   { id: "dossiers", titre: "Dossiers" },
+  { id: "chaine", titre: "Chaîne" },
 ];
 
 export function EnTete({ page, allerA }: { page: Page; allerA: (p: Page) => void }) {

@@ -28,7 +28,7 @@ web/
     services/           Plateforme.ts (interface), PlateformeChaine.ts (ethers)
     hooks/              useLecture, useTransaction, useCompte, usePlateforme
     components/         composants d'affichage réutilisables
-    pages/              Accueil, Verification, Dossiers, DossierDetail
+    pages/              Accueil, Verification, Dossiers, DossierDetail, Chaine
     theme/              couleurs par rôle (couleurs.ts) et nuances
     format.ts, refus.ts dates lisibles, phrases pour les refus des contrats
 ```

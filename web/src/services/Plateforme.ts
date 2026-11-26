@@ -58,8 +58,40 @@ export interface Infos {
   heureChaine: number;
 }
 
+// Une transaction vue par l'explorateur, déjà décodée en texte
+export interface TransactionChaine {
+  hash: string;
+  de: Compte;
+  vers: string; // nom du contrat appelé, ou adresse s'il est inconnu
+  fonction: string;
+  evenements: string[]; // ex. « DossierOuvert(id: 1, ...) »
+  gaz: number; // gaz réellement consommé
+  reussie: boolean;
+  // Détails
+  appel?: string; // fonction avec ses paramètres décodés
+  adresseVers?: string; // absente pour un déploiement
+  contratCree?: string; // adresse du contrat créé par un déploiement
+  position: number; // rang de la transaction dans son bloc
+  nonce: number; // n° d'ordre de cette transaction parmi celles de l'expéditeur
+  gazLimite: number; // maximum de gaz accepté par l'expéditeur
+  prixGaz: string;
+  cout: string; // gaz consommé x prix du gaz
+  valeur: string; // ether envoyé avec l'appel
+  donnees: string; // données brutes envoyées au contrat (hexadécimal)
+  signature: string;
+}
+
+export interface Bloc {
+  numero: number;
+  date: number; // secondes
+  hash: string;
+  hashPrecedent: string; // c'est ce lien qui forme la chaîne
+  transactions: TransactionChaine[];
+}
+
 export interface Plateforme {
   infos(): Promise<Infos>;
+  derniersBlocs(nombre: number): Promise<Bloc[]>; // du plus récent au plus ancien
   comptes(): Promise<Compte[]>;
   verifier(pdf: Uint8Array, recu: Recu, date?: number, cadastre?: string): Promise<Verification>;
   listerDossiers(): Promise<Dossier[]>;
