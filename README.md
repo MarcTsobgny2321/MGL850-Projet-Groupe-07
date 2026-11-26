@@ -10,6 +10,8 @@ Node.js 22 ou plus récent.
 npm install
 ```
 
+Le dossier `typechain-types/` (types TypeScript des contrats) n'est pas dans git. Il est regénéré par `npm run compile`, et automatiquement avant `npm run deployer` et `npm test`.
+
 ## Lancer la démo
 
 1. Terminal 1 : `npm run chaine`

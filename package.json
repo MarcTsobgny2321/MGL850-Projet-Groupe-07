@@ -7,6 +7,7 @@
     "compile": "hardhat compile",
     "typecheck": "tsc --noEmit && tsc --noEmit -p web",
     "chaine": "hardhat node",
+    "predeployer": "hardhat compile",
     "deployer": "ts-node scripts/deployer.ts",
     "emettre": "ts-node scripts/emettre.ts",
     "sceller": "ts-node scripts/sceller.ts",
