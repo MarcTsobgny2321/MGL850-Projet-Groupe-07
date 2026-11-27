@@ -5,11 +5,12 @@ import { useCompte } from "../hooks/useCompte";
 import { usePlateforme } from "../hooks/usePlateforme";
 import { dateLisible } from "../format";
 
-export type Page = "accueil" | "verification" | "dossiers";
+export type Page = "accueil" | "verification" | "emission" | "dossiers";
 
 const PAGES: { id: Page; titre: string }[] = [
   { id: "accueil", titre: "Accueil" },
   { id: "verification", titre: "Vérification" },
+  { id: "emission", titre: "Émission" },
   { id: "dossiers", titre: "Dossiers" },
 ];
 
@@ -51,15 +52,17 @@ export function EnTete({ page, allerA }: { page: Page; allerA: (p: Page) => void
         <Text fz="xs" c="primaire.1">
           {heure ? `Heure de la chaîne : ${dateLisible(heure)}` : "Chaîne injoignable"}
         </Text>
-        <Select
-          aria-label="Je suis"
-          w={190}
-          size="sm"
-          allowDeselect={false}
-          value={compte?.role ?? null}
-          onChange={(r) => r && choisir(r)}
-          data={comptes.map((c) => ({ value: c.role, label: `Je suis : ${c.role}` }))}
-        />
+        {page !== "emission" && (
+          <Select
+            aria-label="Je suis"
+            w={190}
+            size="sm"
+            allowDeselect={false}
+            value={compte?.role ?? null}
+            onChange={(r) => r && choisir(r)}
+            data={comptes.map((c) => ({ value: c.role, label: `Je suis : ${c.role}` }))}
+          />
+        )}
       </Group>
     </Group>
   );

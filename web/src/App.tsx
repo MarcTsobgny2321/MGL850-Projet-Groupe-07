@@ -4,6 +4,7 @@ import { AppShell, Container } from "@mantine/core";
 import { EnTete, Page } from "./components/EnTete";
 import { Accueil } from "./pages/Accueil";
 import { Verification } from "./pages/Verification";
+import { Emission } from "./pages/Emission";
 import { Dossiers } from "./pages/Dossiers";
 import { DossierDetail } from "./pages/DossierDetail";
 
@@ -25,6 +26,7 @@ export function App() {
         <Container size="md">
           {page === "accueil" && <Accueil />}
           {page === "verification" && <Verification />}
+          {page === "emission" && <Emission />}
           {page === "dossiers" && dossier === null && <Dossiers ouvrirDetail={setDossier} />}
           {page === "dossiers" && dossier !== null && (
             <DossierDetail id={dossier} retour={() => setDossier(null)} verifier={() => allerA("verification")} />

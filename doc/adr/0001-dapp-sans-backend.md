@@ -33,4 +33,5 @@ Option A. Le navigateur utilise ethers.js comme les scripts. Le serveur de déve
 - Les règles ne sont écrites qu'une fois, dans les contrats. Le web prépare les données, le contrat décide.
 - Les dossiers privés (`recus/`, `registres/`, `en-attente.json`) ne sont jamais servis.
 - Exception assumée : `/api/immeuble/<cadastre>` simule le logiciel privé du courtier (D14). `GET` lit sans créer, `POST` crée le sel à l'ouverture d'un dossier. Dans la réalité, ce registre serait chez le courtier, pas sur le serveur des pages. Le numéro de cadastre est limité à des chiffres pour qu'il ne puisse pas désigner un autre fichier.
+- Exception de démonstration : `POST /api/emission` reçoit un PDF, réutilise les scripts d'émission et de scellement avec les comptes Hardhat de test, puis renvoie le reçu. Le PDF n'est conservé que temporairement. Cette route n'est disponible que dans le serveur Vite de développement et ne convient pas à la production.
 - Le relais `/rpc` évite les problèmes de CORS (le navigateur reste sur la même origine).

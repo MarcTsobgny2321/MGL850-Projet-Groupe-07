@@ -1,12 +1,13 @@
 # Plateforme web
 
-Interface des usagers : vérifier un document, suivre un dossier de vente. Le navigateur parle directement aux contrats, sans API (ADR 0001). Les décisions sont dans [adr/](adr/README.md), le test manuel dans [E2E.md](E2E.md).
+Interface des usagers : vérifier un document, suivre un dossier de vente et émettre un document pour la démo locale. Le navigateur parle directement aux contrats, sans API métier pour les dossiers (ADR 0001); l'émission est une exception locale utilisant les comptes de test.
 
 ## Écrans
 
 | Écran | Qui | Ce qu'il fait |
 | --- | --- | --- |
 | Accueil | Tous | Adresses des contrats, nombre de lots et de dossiers, heure de la chaîne |
+| Émission | Démo locale | Émission avec un compte Hardhat de test, scellement automatique et téléchargement du reçu |
 | Vérification | Tous, sans compte | PDF et reçu, date et cadastre facultatifs. Empreinte calculée dans le navigateur, puis `wasValidAt`. L'étape qui échoue est en rouge |
 | Dossiers | Tous ; ouverture par le courtier | Liste des dossiers et formulaire d'ouverture |
 | Détail d'un dossier | Selon le compte | Progression, accords, conformité, documents attendus, actions du compte choisi |
@@ -22,7 +23,7 @@ Le compte se choisit dans l'en-tête (« Je suis »). Le contrat vérifie quand 
 
 ```
 web/
-  vite.config.ts        relais /rpc, fichiers publics des lots, registre des immeubles
+  vite.config.ts        relais /rpc, fichiers publics, registres de démo, émission/scellement locaux
   src/
     main.tsx            choix de l'implémentation de Plateforme
     services/           Plateforme.ts (interface), PlateformeChaine.ts (ethers)
@@ -54,6 +55,7 @@ Code partagé avec les scripts, dans `scripts/` : `hachage.ts`, `formats.ts`, `l
 ## Limites
 
 - Comptes de test à la place d'un portefeuille (ADR 0004).
+- L'émission web utilise les clés des comptes de test et n'est disponible que sur le serveur Vite local.
 - Fichiers des lots servis par un seul serveur.
 - Registre de l'immeuble simulé sur le serveur des pages (ADR 0001).
 - Le dossier vérifie un document au dépôt seulement : le notaire revérifie avant de fermer.
